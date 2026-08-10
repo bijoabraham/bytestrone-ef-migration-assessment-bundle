@@ -3,18 +3,14 @@
 version: "1"
 
 nodes:
-  - id: analyze-dbcontext-and-orm-patterns
-    name: "Comprehensive EF Migration & ORM Pattern Analysis"
+  - id: bytestrone-ef-migration-assessment
+    name: "EF6 to EF Core Migration Assessment"
     type: automatic
     steps:
-      - name: "Scan C# source files for EF versions, DbContext, mappings, API risks, and effort metrics"
-        js-ast-grep:
-          js_file: scripts/assess-code.ts
-          base_path: "."
-          language: "csharp"
-          include:
-            - "**/*.cs"
-          exclude:
-            - "**/node_modules/**"
-            - "**/bin/**"
-            - "**/obj/**"
+      - name: "Run C# Pattern Mining"
+        codemod:
+          source: "bytestrone-ef-csharp-pattern-mining"
+
+      - name: "Run Project Inventory & Dependency Mining"
+        codemod:
+          source: "bytestrone-ef-project-inventory-mining"

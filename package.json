@@ -1,6 +1,6 @@
 {
   "name": "bytestrone-ef-migration-assessment-bundle",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "private": true,
   "description": "Assessment bundle for Entity Framework migrations across .NET applications",
   "main": "index.js",
@@ -16,5 +16,8 @@
     "dotnet"
   ],
   "author": "Bytestrone Modernization Team",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@codemod.com/jssg-types": "^1.6.3"
+  }
 }
