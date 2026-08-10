@@ -11,6 +11,3 @@ nodes:
         codemod:
           source: "bytestrone-ef-csharp-pattern-mining"
 
-      - name: "Run Project Inventory & Dependency Mining"
-        codemod:
-          source: "bytestrone-ef-project-inventory-mining"

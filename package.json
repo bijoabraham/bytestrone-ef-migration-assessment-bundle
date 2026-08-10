@@ -1,6 +1,6 @@
 {
   "name": "bytestrone-ef-migration-assessment-bundle",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "private": true,
   "description": "Assessment bundle for Entity Framework migrations across .NET applications",
   "main": "index.js",
