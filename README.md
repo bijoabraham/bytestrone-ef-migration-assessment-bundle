@@ -1,4 +1,4 @@
-# bytestrone-ef-migration-assessment-bundle (v1.1.6)
+# bytestrone-ef-migration-assessment-bundle (v1.2.0)
 
 > **Type**: Read-Only Mining Codemod & Codemod Insights Metrics Emitter
 > **Target**: .NET Framework 4.x / EF6 Solution Repositories
@@ -35,11 +35,11 @@ so every dashboard widget binds to a single, consistent data source.
 
 ```
 workflow.yaml (this package)
-  └─ codemod step → bytestrone-ef-csharp-pattern-mining@1.4.1 (registry)
+  └─ codemod step → bytestrone-ef-csharp-pattern-mining@1.5.0 (registry)
        └─ single js-ast-grep step, per-file dispatch → scripts/codemod.ts
 ```
 
-`codemod.source` is pinned to `bytestrone-ef-csharp-pattern-mining@1.4.1` on
+`codemod.source` is pinned to `bytestrone-ef-csharp-pattern-mining@1.5.0` on
 the registry. Bump the pin explicitly when the mining package publishes a
 new version — this package does not float to `latest`. See the mining
 package's own README for why v1.4.0 replaced an earlier lock-guarded
@@ -62,7 +62,9 @@ live in its README; summarized here:
 | `ef_version` | `{packageId, version, file, source}` | Detected EF package references across `.csproj`/`packages.config` |
 | `ef_config_surface` | `{configType, name, file}` | `connectionString` / `entityFrameworkSection` / `appsettingsConnectionStrings` hits in `App.config`/`Web.config`/`appsettings*.json` |
 | `ef_dependency_risk` | `{packageId, version, source, file, riskTier, risk, targetVersion}` | Every NuGet/GAC package reference across `.csproj`/`packages.config`, classified into `supported` / `requires-upgrade` / `deprecated` / `unsupported` / `custom-binary` / `gac` |
-| `ef_loc_inventory` | `{file, loc}` | Non-blank line count per `.cs` file — a codebase-size sizing signal for effort/cost formulas |
+| `ef_high_risk_dependency_count` | `{packageId, riskTier, file}` | Pre-filtered subset of the above (`riskTier` in `unsupported`/`gac`/`custom-binary`/`requires-upgrade`) — sum directly for a "high risk dependencies" number, no IN-list filter needed |
+| `ef_loc_inventory` | `{file, loc, totalLines}` | Non-blank/total line count per `.cs` file, as string cardinality tags — good for a "largest files" table, **not summable** |
+| `ef_total_loc` | `{file}` | Same per-file LOC as above, but incremented by the actual count (not 1) — sum directly for true total LOC |
 
 ---
 
@@ -87,6 +89,8 @@ alphabetical variable convention:
 | B | `SUM(ef_migration_blocker WHERE severity="warning")` |
 | C | `SUM(total_projects)` |
 | D | `SUM(legacy_csproj_count)` |
+| E | `SUM(ef_total_loc)` |
+| F | `SUM(ef_high_risk_dependency_count)` |
 
 **EF Migration Risk Score (0-100)** — weighted blocker density per project,
 critical patterns (`ObjectContext`, `DbConfiguration`, `ExecuteSqlCommand`,
@@ -113,30 +117,27 @@ patterns:
 ef65_readiness_score = ROUND(100 * (C - D) / MAX(C, 1))
 ```
 
-**Effort estimates** — a starting heuristic, not a calibrated model. Tune the
-weights and hours-per-point to your team's actual velocity once you have a
-few migrated files to compare against:
+**Estimated Effort (days) / Estimated Cost ($)** — sized off real codebase
+size (`E`, true total LOC via `ef_total_loc`) plus blocker and dependency
+complexity (`A`, `B`, `F`), not blocker counts alone. A starting heuristic,
+not a calibrated model — tune the divisor/weights/day-rate to your team's
+actual velocity once you have a few migrated files to compare against.
+`E`/`F` specifically need `ef_total_loc`/`ef_high_risk_dependency_count`
+rather than `SUM()`-ing `ef_loc_inventory`/`ef_dependency_risk` directly —
+those two use string cardinality tags (`loc`, `riskTier`) for filtering and
+detail tables, not as summable numeric measures, and Formula widgets can't
+reliably express a `riskTier` IN-list filter — see the mining package's
+README for the full explanation.
 
 ```
-estimated_story_points = ROUND((A * 1.5 + B) / 10)
-estimated_dev_hours   = estimated_story_points * 6
+estimated_effort_days = ROUND(E / 4000) + ROUND((A * 1.5 + B) / 10) + ROUND(F / 5)
+estimated_cost_usd    = estimated_effort_days * 1200
 ```
 
-**Dependency risk** — `ef_dependency_risk` is a separate signal from the
-code-pattern blockers above (it's about *what you depend on*, not *what your
-code does*), so it's kept as its own widget rather than folded into
-`ef_risk_score`:
-
-```
-E = SUM(ef_dependency_risk WHERE riskTier="unsupported" OR riskTier="gac")
-F = SUM(ef_dependency_risk WHERE riskTier="requires-upgrade" OR riskTier="deprecated" OR riskTier="custom-binary")
-```
-
-A table widget grouped by `riskTier`/`packageId` (using `ef_dependency_risk`
-directly) is usually more useful to a PM than a single collapsed number —
-"3 unsupported dependencies, here's which ones" is more actionable than "E=3".
-If you do want it folded into the overall risk score, add `E * 8 + F * 3` to
-the `ef_risk_score` formula's numerator above.
+**Dependency risk detail** — for a table widget rather than a single number,
+`ef_dependency_risk` (grouped by `riskTier`/`packageId`) is still the right
+source — "3 unsupported dependencies, here's which ones" is more actionable
+to a PM than a single collapsed number like `F`.
 
 ---
 
