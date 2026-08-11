@@ -12,8 +12,8 @@ project-management team commits to a migration plan or estimate.
 
 It performs **zero code modifications**. It emits standard
 [Codemod Insights](https://docs.codemod.com/platform/insights) metric events
-by delegating its scan to
-[`bytestrone-ef-csharp-pattern-mining`](../bytestrone-ef-csharp-pattern-mining).
+by delegating its scan to the published
+`bytestrone-ef-csharp-pattern-mining` package.
 It does not generate a standalone HTML report — the metrics below are meant
 to be viewed as Codemod Insights dashboard widgets, which is also where the
 readiness/risk/effort composite scores are computed (see
@@ -32,15 +32,13 @@ single, consistent data source.
 
 ```
 workflow.yaml (this package)
-  └─ codemod step → ../bytestrone-ef-csharp-pattern-mining
+  └─ codemod step → bytestrone-ef-csharp-pattern-mining@1.1.0 (registry)
        └─ single js-ast-grep step → scripts/codemod.ts
 ```
 
-`codemod.source` currently points at the sibling package by local relative
-path (`../bytestrone-ef-csharp-pattern-mining`), since both packages live
-side-by-side in this workspace and neither is published yet. Swap it for a
-registry reference (e.g. `bytestrone-ef-csharp-pattern-mining@1.1.0`) once
-the mining package is published.
+`codemod.source` is pinned to `bytestrone-ef-csharp-pattern-mining@1.1.0` on
+the registry. Bump the pin explicitly when the mining package publishes a
+new version — this package does not float to `latest`.
 
 ---
 
