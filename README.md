@@ -1,4 +1,4 @@
-# bytestrone-ef-migration-assessment-bundle (v1.1.0)
+# bytestrone-ef-migration-assessment-bundle (v1.1.1)
 
 > **Type**: Read-Only Mining Codemod & Codemod Insights Metrics Emitter
 > **Target**: .NET Framework 4.x / EF6 Solution Repositories
@@ -32,11 +32,11 @@ single, consistent data source.
 
 ```
 workflow.yaml (this package)
-  └─ codemod step → bytestrone-ef-csharp-pattern-mining@1.1.0 (registry)
+  └─ codemod step → bytestrone-ef-csharp-pattern-mining@1.2.0 (registry)
        └─ single js-ast-grep step → scripts/codemod.ts
 ```
 
-`codemod.source` is pinned to `bytestrone-ef-csharp-pattern-mining@1.1.0` on
+`codemod.source` is pinned to `bytestrone-ef-csharp-pattern-mining@1.2.0` on
 the registry. Bump the pin explicitly when the mining package publishes a
 new version — this package does not float to `latest`.
 
@@ -56,6 +56,7 @@ live in its README; summarized here:
 | `legacy_csproj_count` | `{file}` | Subset using the pre-SDK MSBuild project format |
 | `ef_version` | `{packageId, version, file, source}` | Detected EF package references across `.csproj`/`packages.config` |
 | `ef_config_surface` | `{configType, name, file}` | `connectionString` / `entityFrameworkSection` / `appsettingsConnectionStrings` hits in `App.config`/`Web.config`/`appsettings*.json` |
+| `ef_dependency_risk` | `{packageId, version, source, file, riskTier, risk, targetVersion}` | Every NuGet/GAC package reference across `.csproj`/`packages.config`, classified into `supported` / `requires-upgrade` / `deprecated` / `unsupported` / `custom-binary` / `gac` |
 
 ---
 
@@ -114,6 +115,22 @@ few migrated files to compare against:
 estimated_story_points = ROUND((A * 1.5 + B) / 10)
 estimated_dev_hours   = estimated_story_points * 6
 ```
+
+**Dependency risk** — `ef_dependency_risk` is a separate signal from the
+code-pattern blockers above (it's about *what you depend on*, not *what your
+code does*), so it's kept as its own widget rather than folded into
+`ef_risk_score`:
+
+```
+E = SUM(ef_dependency_risk WHERE riskTier="unsupported" OR riskTier="gac")
+F = SUM(ef_dependency_risk WHERE riskTier="requires-upgrade" OR riskTier="deprecated" OR riskTier="custom-binary")
+```
+
+A table widget grouped by `riskTier`/`packageId` (using `ef_dependency_risk`
+directly) is usually more useful to a PM than a single collapsed number —
+"3 unsupported dependencies, here's which ones" is more actionable than "E=3".
+If you do want it folded into the overall risk score, add `E * 8 + F * 3` to
+the `ef_risk_score` formula's numerator above.
 
 ---
 
