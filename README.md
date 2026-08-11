@@ -1,4 +1,4 @@
-# bytestrone-ef-migration-assessment-bundle (v1.1.3)
+# bytestrone-ef-migration-assessment-bundle (v1.1.4)
 
 > **Type**: Read-Only Mining Codemod & Codemod Insights Metrics Emitter
 > **Target**: .NET Framework 4.x / EF6 Solution Repositories
@@ -32,11 +32,11 @@ single, consistent data source.
 
 ```
 workflow.yaml (this package)
-  └─ codemod step → bytestrone-ef-csharp-pattern-mining@1.2.2 (registry)
+  └─ codemod step → bytestrone-ef-csharp-pattern-mining@1.3.0 (registry)
        └─ single js-ast-grep step → scripts/codemod.ts
 ```
 
-`codemod.source` is pinned to `bytestrone-ef-csharp-pattern-mining@1.2.2` on
+`codemod.source` is pinned to `bytestrone-ef-csharp-pattern-mining@1.3.0` on
 the registry. Bump the pin explicitly when the mining package publishes a
 new version — this package does not float to `latest`.
 
@@ -57,6 +57,7 @@ live in its README; summarized here:
 | `ef_version` | `{packageId, version, file, source}` | Detected EF package references across `.csproj`/`packages.config` |
 | `ef_config_surface` | `{configType, name, file}` | `connectionString` / `entityFrameworkSection` / `appsettingsConnectionStrings` hits in `App.config`/`Web.config`/`appsettings*.json` |
 | `ef_dependency_risk` | `{packageId, version, source, file, riskTier, risk, targetVersion}` | Every NuGet/GAC package reference across `.csproj`/`packages.config`, classified into `supported` / `requires-upgrade` / `deprecated` / `unsupported` / `custom-binary` / `gac` |
+| `ef_loc_inventory` | `{file, loc}` | Non-blank line count per `.cs` file — a codebase-size sizing signal for effort/cost formulas |
 
 ---
 
