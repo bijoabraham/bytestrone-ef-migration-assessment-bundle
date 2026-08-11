@@ -9,5 +9,8 @@ nodes:
     steps:
       - name: "Run C# Pattern Mining"
         codemod:
-          source: "bytestrone-ef-csharp-pattern-mining"
+          # Local sibling path — both packages live side-by-side in this workspace
+          # and aren't published to a registry. Swap for a registry reference
+          # (e.g. "bytestrone-ef-csharp-pattern-mining@1.1.0") once published.
+          source: "../bytestrone-ef-csharp-pattern-mining"
 
