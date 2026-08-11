@@ -1,4 +1,4 @@
-# bytestrone-ef-migration-assessment-bundle (v1.1.4)
+# bytestrone-ef-migration-assessment-bundle (v1.1.5)
 
 > **Type**: Read-Only Mining Codemod & Codemod Insights Metrics Emitter
 > **Target**: .NET Framework 4.x / EF6 Solution Repositories
@@ -25,20 +25,25 @@ readiness/risk/effort composite scores are computed (see
 
 One workflow node, one `codemod` step, delegating to
 `bytestrone-ef-csharp-pattern-mining`, which itself runs a single
-`js-ast-grep` step scoped to `**/*.cs`. All mining metrics — per-pattern
-usage, the unified blocker rollup, project inventory, and configuration
-surface area — come from that one step, so every dashboard widget binds to a
-single, consistent data source.
+`js-ast-grep` step whose `include` glob matches `**/*.cs` **and**
+`**/*.csproj`, `packages.config`, `App.config`, `Web.config`,
+`appsettings*.json` — the engine's native per-file walker invokes it
+separately for every matched file, with no shared state. All mining
+metrics — per-pattern usage, the unified blocker rollup, project inventory,
+configuration surface area, and dependency risk — come from that one step,
+so every dashboard widget binds to a single, consistent data source.
 
 ```
 workflow.yaml (this package)
-  └─ codemod step → bytestrone-ef-csharp-pattern-mining@1.3.0 (registry)
-       └─ single js-ast-grep step → scripts/codemod.ts
+  └─ codemod step → bytestrone-ef-csharp-pattern-mining@1.4.0 (registry)
+       └─ single js-ast-grep step, per-file dispatch → scripts/codemod.ts
 ```
 
-`codemod.source` is pinned to `bytestrone-ef-csharp-pattern-mining@1.3.0` on
+`codemod.source` is pinned to `bytestrone-ef-csharp-pattern-mining@1.4.0` on
 the registry. Bump the pin explicitly when the mining package publishes a
-new version — this package does not float to `latest`.
+new version — this package does not float to `latest`. See the mining
+package's own README for why v1.4.0 replaced an earlier lock-guarded
+whole-repo `fs` walk design that failed on the hosted platform.
 
 ---
 

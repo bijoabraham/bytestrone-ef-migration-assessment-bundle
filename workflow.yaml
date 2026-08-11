@@ -9,5 +9,5 @@ nodes:
     steps:
       - name: "Run C# Pattern Mining"
         codemod:
-          source: "bytestrone-ef-csharp-pattern-mining@1.3.0"
+          source: "bytestrone-ef-csharp-pattern-mining@1.4.0"
 
