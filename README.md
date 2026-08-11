@@ -1,4 +1,4 @@
-# bytestrone-ef-migration-assessment-bundle (v1.1.1)
+# bytestrone-ef-migration-assessment-bundle (v1.1.2)
 
 > **Type**: Read-Only Mining Codemod & Codemod Insights Metrics Emitter
 > **Target**: .NET Framework 4.x / EF6 Solution Repositories
@@ -32,11 +32,11 @@ single, consistent data source.
 
 ```
 workflow.yaml (this package)
-  └─ codemod step → bytestrone-ef-csharp-pattern-mining@1.2.0 (registry)
+  └─ codemod step → bytestrone-ef-csharp-pattern-mining@1.2.1 (registry)
        └─ single js-ast-grep step → scripts/codemod.ts
 ```
 
-`codemod.source` is pinned to `bytestrone-ef-csharp-pattern-mining@1.2.0` on
+`codemod.source` is pinned to `bytestrone-ef-csharp-pattern-mining@1.2.1` on
 the registry. Bump the pin explicitly when the mining package publishes a
 new version — this package does not float to `latest`.
 
